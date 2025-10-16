@@ -7,7 +7,7 @@ export default function Navbar() {
       <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
          <div className="container mx-auto px-4">
             {/* Top Bar */}
-            <div className="hidden md:flex items-center justify-between py-2 text-sm text-muted-foreground">
+            {/* <div className="hidden md:flex items-center justify-between py-2 text-sm text-muted-foreground">
                <div className="flex items-center gap-6">
                   <div className="flex items-center gap-2">
                      <Phone className="h-3.5 w-3.5" />
@@ -23,7 +23,7 @@ export default function Navbar() {
                      Dev Console
                   </Link>
                </div>
-            </div>
+            </div> */}
 
             <Separator className="hidden md:block" />
 
