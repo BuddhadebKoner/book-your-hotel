@@ -1,4 +1,5 @@
 import './App.css'
+import { Button } from './components/ui/button'
 
 function App() {
   return (
@@ -9,6 +10,9 @@ function App() {
       <p className="text-center text-muted-foreground">
         Powered by LiteAPI
       </p>
+      <Button >
+        Get Started
+      </Button>
     </div>
   )
 }

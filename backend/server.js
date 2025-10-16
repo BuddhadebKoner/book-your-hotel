@@ -97,7 +97,7 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // Health check endpoint
-app.get('/health', (req, res) => {
+app.get('/', (req, res) => {
    const dbStatus = getDBStatus();
    res.status(200).json({
       success: true,
@@ -164,10 +164,9 @@ const startServer = async () => {
       // Connect to database
       await connectDB();
 
-
       // Start listening
       const server = app.listen(PORT, () => {
-         console.log(`🚀 Server is running on http://localhost:${PORT}`);
+         console.log(`Server running on port ${PORT}`);
       });
 
       // Set server timeout to 6 minutes for large file uploads (increased for production)
@@ -180,11 +179,9 @@ const startServer = async () => {
       server.headersTimeout = 370000; // Slightly higher than keepAliveTimeout
       server.requestTimeout = 360000; // 6 minutes for individual requests
 
-      console.log('⚙️ Server timeouts configured: 6 minutes for large file uploads');
-
       return server;
    } catch (error) {
-      console.error('💥 Failed to start server:', error.message);
+      console.error('Failed to start server:', error.message);
       if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
          process.exit(1);
       }
@@ -201,8 +198,8 @@ startServer().then(server => {
 });
 
 // Handle unhandled promise rejections
-process.on('unhandledRejection', (err, promise) => {
-   console.log('Unhandled Rejection at:', promise, 'reason:', err);
+process.on('unhandledRejection', (err) => {
+   console.error('Unhandled Rejection:', err);
    if (serverInstance) {
       serverInstance.close(() => {
          process.exit(1);
@@ -214,7 +211,7 @@ process.on('unhandledRejection', (err, promise) => {
 
 // Handle uncaught exceptions
 process.on('uncaughtException', (err) => {
-   console.log('Uncaught Exception thrown:', err);
+   console.error('Uncaught Exception:', err);
    process.exit(1);
 });
 
