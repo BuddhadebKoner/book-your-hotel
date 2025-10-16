@@ -1,4 +1,4 @@
-import { Award, Search, MapPin, Calendar, Users } from 'lucide-react';
+import { Award, Search, MapPin, Calendar, Users, Map } from 'lucide-react';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -18,6 +18,7 @@ export function HeroSection({
    guests,
    onGuestsChange,
    onSearch,
+   onMapSearch,
    loading = false
 }) {
    const stats = [
@@ -106,23 +107,34 @@ export function HeroSection({
                      </div>
                   </div>
 
-                  <Button
-                     onClick={onSearch}
-                     disabled={loading}
-                     className="w-full mt-6 h-12 text-base font-semibold bg-gradient-to-r from-primary to-orange-600 hover:from-primary/90 hover:to-orange-600/90"
-                  >
-                     {loading ? (
-                        <>
-                           <div className="animate-spin mr-2 h-5 w-5 border-2 border-white border-t-transparent rounded-full" />
-                           Searching...
-                        </>
-                     ) : (
-                        <>
-                           <Search className="mr-2 h-5 w-5" />
-                           Search Hotels
-                        </>
-                     )}
-                  </Button>
+                  <div className="flex flex-col sm:flex-row gap-3 mt-6">
+                     <Button
+                        onClick={onSearch}
+                        disabled={loading}
+                        className="flex-1 h-12 text-base font-semibold bg-gradient-to-r from-primary to-orange-600 hover:from-primary/90 hover:to-orange-600/90"
+                     >
+                        {loading ? (
+                           <>
+                              <div className="animate-spin mr-2 h-5 w-5 border-2 border-white border-t-transparent rounded-full" />
+                              Searching...
+                           </>
+                        ) : (
+                           <>
+                              <Search className="mr-2 h-5 w-5" />
+                              Search Hotels
+                           </>
+                        )}
+                     </Button>
+
+                     <Button
+                        onClick={onMapSearch}
+                        variant="outline"
+                        className="h-12 text-base font-semibold border-2 border-primary text-primary hover:bg-primary/10 sm:w-auto"
+                     >
+                        <Map className="mr-2 h-5 w-5" />
+                        Search on Map
+                     </Button>
+                  </div>
                </CardContent>
             </Card>
 

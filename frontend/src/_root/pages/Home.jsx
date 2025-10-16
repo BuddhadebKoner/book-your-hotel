@@ -108,6 +108,11 @@ function Home() {
       // Hotel card will navigate directly via useNavigate in HotelCard component
    };
 
+   // Handle map search button click
+   const handleMapSearch = () => {
+      navigate('/map-search');
+   };
+
    // Handle CTA actions
    const handleBrowseHotels = () => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -131,6 +136,7 @@ function Home() {
             guests={guests}
             onGuestsChange={setGuests}
             onSearch={handleSearch}
+            onMapSearch={handleMapSearch}
             loading={isFetching}
          />
 

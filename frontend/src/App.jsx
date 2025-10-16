@@ -8,6 +8,7 @@ import Contact from './_root/pages/Contact'
 import Home from './_root/pages/Home'
 import DevPage from './_root/pages/DevPage'
 import HotelDetails from './_root/pages/HotelDetails'
+import MapSearch from './_root/pages/MapSearch'
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
           <Route index element={<Home />} />
           <Route path="/hotels" element={<Hotels />} />
           <Route path="/hotels/:hotelId" element={<HotelDetails />} />
+          <Route path="/map-search" element={<MapSearch />} />
           <Route path="/destinations" element={<Destinations />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />

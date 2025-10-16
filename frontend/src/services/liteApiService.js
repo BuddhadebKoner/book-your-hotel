@@ -6,7 +6,8 @@
 const API_CONFIG = {
    baseUrl: import.meta.env.VITE_LITEAPI_BASE_URL || 'https://api.liteapi.travel/v3.0',
    sandboxKey: import.meta.env.VITE_LITEAPI_SANDBOX_KEY,
-   privateKey: import.meta.env.VITE_LITEAPI_PRIVATE_KEY
+   privateKey: import.meta.env.VITE_LITEAPI_PRIVATE_KEY,
+   whitelabelDomain: import.meta.env.VITE_LITEAPI_WHITELABEL_DOMAIN || 'whitelabel.nuitee.link'
 };
 
 // India-centric defaults
@@ -14,6 +15,14 @@ export const INDIA_CONFIG = {
    currency: import.meta.env.VITE_DEFAULT_CURRENCY || 'INR',
    country: import.meta.env.VITE_DEFAULT_COUNTRY || 'IN',
    nationality: import.meta.env.VITE_DEFAULT_NATIONALITY || 'IN'
+};
+
+// Export API config for map widget
+export const MAP_CONFIG = {
+   domain: API_CONFIG.whitelabelDomain,
+   primaryColor: '#7057F0', // Default brand color
+   currency: INDIA_CONFIG.currency,
+   defaultPlaceId: 'ChIJwe1EZjDG5zsRaYxkjY_tpF0' // Default: London
 };
 
 /**
