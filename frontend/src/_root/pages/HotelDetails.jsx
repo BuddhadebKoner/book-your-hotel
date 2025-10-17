@@ -1,14 +1,9 @@
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { useHotelDetails } from '../../lib/react-query/hooks/useHotelDetails'
 import { Swiper, SwiperSlide } from 'swiper/react'
-import { Navigation, Pagination, Autoplay, Thumbs } from 'swiper/modules'
-import { useState, useMemo } from 'react'
+import { Navigation, Pagination } from 'swiper/modules'
+import { useMemo } from 'react'
 import {
-   MapPin,
-   Star,
-   Phone,
-   Mail,
-   Clock,
    Users,
    Bed,
    Maximize2,
@@ -18,34 +13,32 @@ import {
    Loader2,
    Calendar,
    Info,
-   Wifi,
    Car,
-   Coffee,
    ChevronDown,
    ChevronUp,
+   MapPin,
    Building2,
-   Image as ImageIcon
+   Phone,
+   Mail
 } from 'lucide-react'
 import { Button } from '../../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card'
 import { Badge } from '../../components/ui/badge'
-import { Separator } from '../../components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs'
+import { HotelHeader, HotelGallery, BookingInfo, GuestFeedback } from '../../components/hotel-details'
+import { useState } from 'react'
 
 // Import Swiper styles
 import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
-import 'swiper/css/thumbs'
 
 export default function HotelDetails() {
    const { hotelId } = useParams()
    const navigate = useNavigate()
    const location = useLocation()
    const { data, isLoading, isError, error } = useHotelDetails(hotelId)
-   const [thumbsSwiper, setThumbsSwiper] = useState(null)
    const [showAllFacilities, setShowAllFacilities] = useState(false)
-   const [imageError, setImageError] = useState({})
 
    // Get the previous location from state, or default to home
    const previousLocation = location.state?.from || '/'
@@ -106,11 +99,6 @@ export default function HotelDetails() {
       }
       return fallbackImages
    }, [hotel?.hotelImages, fallbackImages])
-
-   // Handle image error
-   const handleImageError = (index) => {
-      setImageError(prev => ({ ...prev, [index]: true }))
-   }
 
    // Handle back navigation
    const handleBackNavigation = () => {
@@ -178,37 +166,9 @@ export default function HotelDetails() {
    return (
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
          {/* Header */}
-         <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-40">
-            <div className="container mx-auto px-4 py-4">
-               <Button variant="outline" onClick={handleBackNavigation} className="mb-2 hover:bg-primary hover:text-white transition-colors">
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Back to Search
-               </Button>
-               <div className="flex items-start justify-between flex-wrap gap-4">
-                  <div className="flex-1">
-                     <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-2">{hotel.name}</h1>
-                     <div className="flex items-center gap-4 mt-2 flex-wrap">
-                        {hotel.starRating > 0 && Number.isFinite(hotel.starRating) && (
-                           <div className="flex items-center gap-1">
-                              {[...Array(Math.min(Math.floor(hotel.starRating), 5))].map((_, i) => (
-                                 <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                              ))}
-                           </div>
-                        )}
-                        <div className="flex items-center gap-1 text-muted-foreground">
-                           <MapPin className="h-4 w-4" />
-                           <span className="text-sm">{hotel.address}{hotel.address && hotel.city ? ', ' : ''}{hotel.city}</span>
-                        </div>
-                     </div>
-                  </div>
-                  <Badge variant="secondary" className="text-lg px-4 py-2">
-                     {hotel.hotelType}
-                  </Badge>
-               </div>
-            </div>
-         </div>
+         <HotelHeader hotel={hotel} onBackClick={handleBackNavigation} />
 
-         <div className="container mx-auto px-4 py-8">
+         <div className="container mx-auto px-4 py-8 pb-24 lg:pb-8">
             {/* Deleted Property Warning */}
             {hotel.isDeleted && (
                <Card className="mb-6 border-amber-500 bg-amber-50 dark:bg-amber-950/20">
@@ -231,88 +191,7 @@ export default function HotelDetails() {
             )}
 
             {/* Image Gallery */}
-            <div className="mb-8">
-               {hotelImages.length > 0 ? (
-                  <>
-                     <Swiper
-                        modules={[Navigation, Pagination, Autoplay, Thumbs]}
-                        navigation
-                        pagination={{ clickable: true }}
-                        autoplay={{ delay: 5000, disableOnInteraction: false }}
-                        thumbs={{ swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null }}
-                        className="rounded-xl overflow-hidden mb-4 shadow-2xl"
-                        style={{ height: '500px' }}
-                     >
-                        {hotelImages.map((image, index) => (
-                           <SwiperSlide key={index}>
-                              <div className="relative w-full h-full bg-slate-100 dark:bg-slate-800">
-                                 {!imageError[index] ? (
-                                    <img
-                                       src={image.urlHd || image.url}
-                                       alt={image.caption || `${hotel.name} - Image ${index + 1}`}
-                                       className="w-full h-full object-cover"
-                                       loading={index === 0 ? 'eager' : 'lazy'}
-                                       onError={() => handleImageError(index)}
-                                    />
-                                 ) : (
-                                    <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                                       <Building2 className="h-32 w-32 text-white/80" />
-                                    </div>
-                                 )}
-                                 {image.caption && (
-                                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                                       <p className="text-white text-sm capitalize">{image.caption}</p>
-                                    </div>
-                                 )}
-                              </div>
-                           </SwiperSlide>
-                        ))}
-                     </Swiper>
-
-                     {/* Thumbnails */}
-                     {hotelImages.length > 1 && (
-                        <Swiper
-                           onSwiper={setThumbsSwiper}
-                           modules={[Thumbs]}
-                           spaceBetween={10}
-                           slidesPerView={6}
-                           watchSlidesProgress
-                           className="rounded-lg overflow-hidden"
-                           breakpoints={{
-                              320: { slidesPerView: 3 },
-                              640: { slidesPerView: 4 },
-                              768: { slidesPerView: 5 },
-                              1024: { slidesPerView: 6 },
-                           }}
-                        >
-                           {hotelImages.slice(0, 12).map((image, index) => (
-                              <SwiperSlide key={index} className="cursor-pointer">
-                                 <div className="aspect-video rounded-md overflow-hidden border-2 border-transparent hover:border-primary transition-all">
-                                    {!imageError[`thumb-${index}`] ? (
-                                       <img
-                                          src={image.url}
-                                          alt={`Thumbnail ${index + 1}`}
-                                          className="w-full h-full object-cover"
-                                          onError={() => handleImageError(`thumb-${index}`)}
-                                       />
-                                    ) : (
-                                       <div className="w-full h-full bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800 flex items-center justify-center">
-                                          <ImageIcon className="h-6 w-6 text-slate-400" />
-                                       </div>
-                                    )}
-                                 </div>
-                              </SwiperSlide>
-                           ))}
-                        </Swiper>
-                     )}
-                  </>
-               ) : (
-                  <div className="rounded-xl overflow-hidden mb-4 shadow-2xl h-[500px] bg-gradient-to-br from-blue-500 via-purple-600 to-pink-600 flex items-center justify-center relative">
-                     <Building2 className="h-32 w-32 text-white/80 z-10" />
-                     <div className="absolute inset-0 bg-black/10" />
-                  </div>
-               )}
-            </div>
+            <HotelGallery hotel={hotel} hotelImages={hotelImages} />
 
             {/* Main Content */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -690,197 +569,26 @@ export default function HotelDetails() {
 
                {/* Right Column - Booking Info */}
                <div className="space-y-6">
-                  {/* Quick Info */}
-                  <Card className="sticky top-24">
-                     <CardHeader>
-                        <CardTitle>Quick Information</CardTitle>
-                     </CardHeader>
-                     <CardContent className="space-y-4">
-                        {/* Check-in/Check-out */}
-                        {hotel.checkinCheckoutTimes ? (
-                           <div>
-                              <div className="flex items-center gap-2 mb-2">
-                                 <Clock className="h-4 w-4 text-primary" />
-                                 <span className="font-semibold text-sm">Check-in / Check-out</span>
-                              </div>
-                              <div className="pl-6 space-y-1 text-sm text-muted-foreground">
-                                 <p>Check-in: {hotel.checkinCheckoutTimes.checkin || 'Contact hotel'}</p>
-                                 <p>Check-out: {hotel.checkinCheckoutTimes.checkout || 'Contact hotel'}</p>
-                              </div>
-                           </div>
-                        ) : (
-                           <div>
-                              <div className="flex items-center gap-2 mb-2">
-                                 <Clock className="h-4 w-4 text-muted-foreground" />
-                                 <span className="font-semibold text-sm">Check-in / Check-out</span>
-                              </div>
-                              <div className="pl-6 space-y-1 text-sm text-muted-foreground">
-                                 <p>Please contact the hotel for check-in and check-out times</p>
-                              </div>
-                           </div>
-                        )}
-
-                        <Separator />
-
-                        {/* Contact */}
-                        {(hotel.phone && hotel.phone.trim()) || (hotel.email && hotel.email.trim()) ? (
-                           <div className="space-y-3">
-                              {hotel.phone && hotel.phone.trim() && (
-                                 <div className="flex items-center gap-2">
-                                    <Phone className="h-4 w-4 text-primary flex-shrink-0" />
-                                    <a href={`tel:${hotel.phone}`} className="text-sm hover:underline hover:text-primary transition-colors">
-                                       {hotel.phone}
-                                    </a>
-                                 </div>
-                              )}
-                              {hotel.email && hotel.email.trim() && (
-                                 <div className="flex items-center gap-2">
-                                    <Mail className="h-4 w-4 text-primary flex-shrink-0" />
-                                    <a href={`mailto:${hotel.email}`} className="text-sm hover:underline hover:text-primary transition-colors break-all">
-                                       {hotel.email}
-                                    </a>
-                                 </div>
-                              )}
-                              {hotel.fax && hotel.fax.trim() && (
-                                 <div className="flex items-center gap-2">
-                                    <Phone className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                                    <span className="text-sm text-muted-foreground">Fax: {hotel.fax}</span>
-                                 </div>
-                              )}
-                           </div>
-                        ) : (
-                           <div className="text-sm text-muted-foreground p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
-                              <Info className="h-4 w-4 inline mr-2" />
-                              Contact information available upon booking
-                           </div>
-                        )}
-
-                        <Separator />
-
-                        {/* Brand/Chain Info */}
-                        {hotel.chain && hotel.chain.trim() && (
-                           <>
-                              <div className="p-3 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                                 <div className="flex items-center gap-2 mb-1">
-                                    <Building2 className="h-4 w-4 text-blue-600" />
-                                    <span className="text-sm font-semibold text-blue-900 dark:text-blue-200">Part of {hotel.chain}</span>
-                                 </div>
-                                 <p className="text-xs text-blue-700 dark:text-blue-300">Trusted hotel chain</p>
-                              </div>
-                              <Separator />
-                           </>
-                        )}
-
-                        {/* Quick Features */}
-                        <div className="space-y-3">
-                           {hotel.parking && hotel.parking.trim() && (
-                              <div className="flex items-center gap-2 p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                                 <Car className="h-4 w-4 text-primary flex-shrink-0" />
-                                 <span className="text-sm">Parking: {hotel.parking}</span>
-                              </div>
-                           )}
-                           {hotel.hotelFacilities?.some(f => f.toLowerCase().includes('wifi')) && (
-                              <div className="flex items-center gap-2 p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                                 <Wifi className="h-4 w-4 text-primary flex-shrink-0" />
-                                 <span className="text-sm">Free WiFi</span>
-                              </div>
-                           )}
-                           {hotel.childAllowed !== undefined && (
-                              <div className="flex items-center gap-2 p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                                 <Users className="h-4 w-4 text-primary flex-shrink-0" />
-                                 <span className="text-sm">{hotel.childAllowed ? 'Children Allowed' : 'Adults Only'}</span>
-                              </div>
-                           )}
-                           {hotel.petsAllowed !== undefined && (
-                              <div className="flex items-center gap-2 p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                                 <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />
-                                 <span className="text-sm">{hotel.petsAllowed ? 'Pets Allowed' : 'No Pets'}</span>
-                              </div>
-                           )}
-                           {hotel.groupRoomMin > 0 && (
-                              <div className="flex items-center gap-2 p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                                 <Users className="h-4 w-4 text-primary flex-shrink-0" />
-                                 <span className="text-sm">Min. {hotel.groupRoomMin} rooms for group booking</span>
-                              </div>
-                           )}
-                        </div>
-
-                        <Separator />
-
-                        {/* Reviews */}
-                        {hotel.reviewCount > 0 ? (
-                           <div>
-                              <div className="flex items-center justify-between mb-2">
-                                 <span className="font-semibold text-sm">Guest Reviews</span>
-                                 <Badge variant="secondary">{hotel.reviewCount} review{hotel.reviewCount > 1 ? 's' : ''}</Badge>
-                              </div>
-                              {hotel.rating > 0 && (
-                                 <div className="flex items-center gap-2">
-                                    <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
-                                    <span className="text-2xl font-bold">{hotel.rating.toFixed(1)}</span>
-                                    <span className="text-sm text-muted-foreground">out of 5</span>
-                                 </div>
-                              )}
-                           </div>
-                        ) : (
-                           <div className="text-center p-4 bg-slate-50 dark:bg-slate-800 rounded-lg">
-                              <Star className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-                              <p className="text-sm text-muted-foreground">No reviews yet</p>
-                              <p className="text-xs text-muted-foreground mt-1">Be the first to review!</p>
-                           </div>
-                        )}
-
-                        <Button className="w-full" size="lg">
-                           <Calendar className="mr-2 h-4 w-4" />
-                           Book Now
-                        </Button>
-                     </CardContent>
-                  </Card>
-
-                  {/* Sentiment Analysis */}
-                  {hotel.sentiment_analysis && (hotel.sentiment_analysis.pros?.length > 0 || hotel.sentiment_analysis.cons?.length > 0) ? (
-                     <Card>
-                        <CardHeader>
-                           <CardTitle className="text-lg">Guest Feedback</CardTitle>
-                           <CardDescription>Based on verified guest reviews</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                           {hotel.sentiment_analysis.pros && hotel.sentiment_analysis.pros.length > 0 && (
-                              <div>
-                                 <h4 className="font-semibold text-sm mb-3 text-green-600 flex items-center gap-1">
-                                    <CheckCircle2 className="h-4 w-4" />
-                                    Pros ({hotel.sentiment_analysis.pros.length})
-                                 </h4>
-                                 <ul className="space-y-2">
-                                    {hotel.sentiment_analysis.pros.map((pro, index) => (
-                                       <li key={index} className="text-sm text-muted-foreground flex items-start gap-2 p-2 rounded-lg hover:bg-green-50 dark:hover:bg-green-950/20 transition-colors">
-                                          <span className="text-green-600 font-bold mt-0.5">✓</span>
-                                          <span>{pro}</span>
-                                       </li>
-                                    ))}
-                                 </ul>
-                              </div>
-                           )}
-                           {hotel.sentiment_analysis.cons && hotel.sentiment_analysis.cons.length > 0 && (
-                              <div>
-                                 <h4 className="font-semibold text-sm mb-3 text-red-600 flex items-center gap-1">
-                                    <XCircle className="h-4 w-4" />
-                                    Cons ({hotel.sentiment_analysis.cons.length})
-                                 </h4>
-                                 <ul className="space-y-2">
-                                    {hotel.sentiment_analysis.cons.map((con, index) => (
-                                       <li key={index} className="text-sm text-muted-foreground flex items-start gap-2 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors">
-                                          <span className="text-red-600 font-bold mt-0.5">✗</span>
-                                          <span>{con}</span>
-                                       </li>
-                                    ))}
-                                 </ul>
-                              </div>
-                           )}
-                        </CardContent>
-                     </Card>
-                  ) : null}
+                  {/* Quick Information */}
+                  <BookingInfo hotel={hotel} />
                </div>
+            </div>
+
+            {/* Guest Feedback Section - Full Width at Bottom */}
+            {hotel.sentiment_analysis && (hotel.sentiment_analysis.pros?.length > 0 || hotel.sentiment_analysis.cons?.length > 0) && (
+               <div className="mt-8">
+                  <GuestFeedback sentimentAnalysis={hotel.sentiment_analysis} />
+               </div>
+            )}
+         </div>
+
+         {/* Sticky Bottom Booking Button for Mobile */}
+         <div className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/90 border-t p-4 shadow-lg">
+            <div className="container mx-auto">
+               <Button className="w-full" size="lg">
+                  <Calendar className="mr-2 h-4 w-4" />
+                  Book Now
+               </Button>
             </div>
          </div>
       </div>

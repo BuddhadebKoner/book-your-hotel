@@ -1,0 +1,5 @@
+export { default as HotelHeader } from './HotelHeader'
+export { default as HotelGallery } from './HotelGallery'
+export { default as BookingInfo } from './BookingInfo'
+export { default as GuestFeedback } from './GuestFeedback'
+export { default as HotelRates } from './HotelRates'

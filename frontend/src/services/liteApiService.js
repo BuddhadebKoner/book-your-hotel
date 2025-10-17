@@ -134,27 +134,138 @@ export const HotelSearchAPI = {
    },
 
    /**
-    * Search hotels with full rates
+    * Search hotels with full rates (supports multi-room bookings)
+    * Endpoint: POST /hotels/rates
+    * Recommended timeout: 6-12 seconds for high load
+    * Default limit: 200 hotels, can be increased to 5000 if needed
     */
    searchHotelsWithRates: async (searchParams) => {
-      const { countryCode, cityName, checkin, checkout, adults = 2, children = 0, currency = 'INR', guestNationality = 'IN' } = searchParams;
+      const {
+         // Location (one of these required)
+         hotelIds,        // Array of hotel IDs (max 200 default, up to 5000)
+         cityName,        // City name
+         countryCode,     // Country code (with city)
+         latitude,        // Latitude (with longitude and radius)
+         longitude,       // Longitude (with latitude and radius)
+         radius,          // Radius in km (with lat/lng)
+         placeId,         // Google Place ID
+         iataCode,        // IATA airport code
+
+         // Required parameters
+         checkin,         // Check-in date (YYYY-MM-DD)
+         checkout,        // Check-out date (YYYY-MM-DD)
+         currency = 'INR',
+         guestNationality = 'IN',
+
+         // Occupancy (array of rooms)
+         occupancies,     // Array of { adults, childrenAges: [] }
+
+         // Optional parameters
+         limit,           // Number of hotels (default 200, max 5000)
+         timeout = 12000  // Recommended 12 seconds for high load
+      } = searchParams;
+
+      // Build occupancies array if not provided
+      const roomOccupancies = occupancies || [
+         {
+            adults: 2,
+            childrenAges: []
+         }
+      ];
 
       const body = {
-         countryCode,
-         cityName,
          checkin,
          checkout,
          currency,
          guestNationality,
-         occupancies: [
-            {
-               adults,
-               children
-            }
-         ]
+         occupancies: roomOccupancies
       };
 
+      // Add location parameter (only one required)
+      if (hotelIds) body.hotelIds = hotelIds;
+      else if (cityName && countryCode) {
+         body.cityName = cityName;
+         body.countryCode = countryCode;
+      } else if (latitude && longitude && radius) {
+         body.latitude = latitude;
+         body.longitude = longitude;
+         body.radius = radius;
+      } else if (placeId) {
+         body.placeId = placeId;
+      } else if (iataCode) {
+         body.iataCode = iataCode;
+      }
+
+      // Add optional parameters
+      if (limit) body.limit = limit;
+
       return await makeRequest('/hotels/rates', 'POST', body);
+   },
+
+   /**
+    * Get minimum rates for hotels (faster, lighter response)
+    * Endpoint: POST /hotels/min-rates
+    * Returns only hotelId, price, and suggestedSellingPrice
+    * Useful for quick price comparisons and listings
+    */
+   getMinRates: async (searchParams) => {
+      const {
+         // Location (one of these required)
+         hotelIds,        // Array of hotel IDs
+         cityName,        // City name
+         countryCode,     // Country code (with city)
+         latitude,        // Latitude (with longitude and radius)
+         longitude,       // Longitude (with latitude and radius)
+         radius,          // Radius in km (with lat/lng)
+         placeId,         // Google Place ID
+         iataCode,        // IATA airport code
+
+         // Required parameters
+         checkin,         // Check-in date (YYYY-MM-DD)
+         checkout,        // Check-out date (YYYY-MM-DD)
+         currency = 'INR',
+         guestNationality = 'IN',
+
+         // Occupancy
+         occupancies,     // Array of { adults, childrenAges: [] }
+
+         // Optional
+         limit
+      } = searchParams;
+
+      const roomOccupancies = occupancies || [
+         {
+            adults: 2,
+            childrenAges: []
+         }
+      ];
+
+      const body = {
+         checkin,
+         checkout,
+         currency,
+         guestNationality,
+         occupancies: roomOccupancies
+      };
+
+      // Add location parameter
+      if (hotelIds) body.hotelIds = hotelIds;
+      else if (cityName && countryCode) {
+         body.cityName = cityName;
+         body.countryCode = countryCode;
+      } else if (latitude && longitude && radius) {
+         body.latitude = latitude;
+         body.longitude = longitude;
+         body.radius = radius;
+      } else if (placeId) {
+         body.placeId = placeId;
+      } else if (iataCode) {
+         body.iataCode = iataCode;
+      }
+
+      if (limit) body.limit = limit;
+
+      return await makeRequest('/hotels/min-rates', 'POST', body);
    }
 };
 
