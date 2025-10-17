@@ -2,39 +2,65 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useHotelSearch } from '../../lib/react-query/hooks/useHotelSearch';
 import { INDIA_CONFIG } from '../../services/liteApiService';
+import { useLocation } from '../../context';
 import {
    HeroSection,
    SearchResultsDialog,
    FeaturesSection,
    DestinationsSection,
    PropertyTypesSection,
-   CTASection
+   CTASection,
+   CitySelectionDialog,
+   LocationSuggestionBar,
+   CityNotification
 } from '../../components/home';
 
 /**
  * Home Page - Main landing page
  * Refactored for scalability with modular components
  * URL Parameters: search, checkin, checkout, guests
+ * Integrates with LocationContext for automatic city detection
  */
 function Home() {
    const navigate = useNavigate();
    const [searchParams, setSearchParams] = useSearchParams();
 
+   // City context
+   const {
+      cityData,
+      locationData,
+      showCitySelectionDialog,
+      showSuggestionBar,
+      showNotification,
+      handleCitySelect,
+      handleSkipCitySelection,
+      dismissSuggestionBar,
+      dismissNotification,
+      openCityDialogFromNotification,
+      setShowCitySelectionDialog,
+      setShowSuggestionBar
+   } = useLocation();
+
    // Initialize state from URL parameters
-   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
-   const [checkin, setCheckin] = useState(searchParams.get('checkin') || '');
-   const [checkout, setCheckout] = useState(searchParams.get('checkout') || '');
-   const [guests, setGuests] = useState(parseInt(searchParams.get('guests')) || 2);
+   const [searchQuery, setSearchQuery] = useState('');
+   const [checkin, setCheckin] = useState('');
+   const [checkout, setCheckout] = useState('');
+   const [guests, setGuests] = useState(2);
    const [dialogOpen, setDialogOpen] = useState(false);
 
-   // Open dialog if search parameter exists
+   // Initialize form values from URL on mount (but don't auto-open dialog)
    useEffect(() => {
-      const searchParam = searchParams.get('search');
-      if (searchParam) {
-         setSearchQuery(searchParam);
-         setDialogOpen(true);
+      // Only set initial values, don't trigger any actions
+      if (searchParams.get('search')) setSearchQuery(searchParams.get('search'));
+      if (searchParams.get('checkin')) setCheckin(searchParams.get('checkin'));
+      if (searchParams.get('checkout')) setCheckout(searchParams.get('checkout'));
+      if (searchParams.get('guests')) setGuests(parseInt(searchParams.get('guests')));
+
+      // Clear URL parameters on mount to prevent auto-opening on refresh
+      if (searchParams.toString()) {
+         setSearchParams({});
       }
-   }, [searchParams]);
+   }, []); // Run only once on mount
 
    // React Query hook for hotel search (only enabled when dialog is open)
    const { data: searchData, isFetching } = useHotelSearch(
@@ -113,6 +139,35 @@ function Home() {
       navigate('/map-search');
    };
 
+   // Handle city selection from dialog
+   const handleCitySelection = (cityName) => {
+      handleCitySelect(cityName);
+      // Set search query and open dialog immediately
+      setSearchQuery(cityName);
+      updateURLParams({
+         search: cityName,
+         guests: guests.toString()
+      });
+      setDialogOpen(true);
+      setShowSuggestionBar(false);
+   };
+
+   // Handle suggestion bar explore click
+   const handleExploreSuggestion = () => {
+      if (cityData?.city || locationData?.city) {
+         const cityName = cityData?.city || locationData?.city;
+         setSearchQuery(cityName);
+
+         updateURLParams({
+            search: cityName,
+            guests: guests.toString()
+         });
+
+         setDialogOpen(true);
+         dismissSuggestionBar();
+      }
+   };
+
    // Handle CTA actions
    const handleBrowseHotels = () => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -165,6 +220,31 @@ function Home() {
             itemsPerPage={12}
             onHotelSelect={handleHotelSelect}
          />
+
+         {/* City Selection Dialog (First-time visitors) */}
+         <CitySelectionDialog
+            open={showCitySelectionDialog}
+            onOpenChange={setShowCitySelectionDialog}
+            onCitySelect={handleCitySelection}
+            onSkip={handleSkipCitySelection}
+         />
+
+         {/* City Suggestion Bar (Returning visitors) */}
+         {(cityData?.city || locationData?.city) && showSuggestionBar && (
+            <LocationSuggestionBar
+               cityName={cityData?.city || locationData?.city}
+               onExplore={handleExploreSuggestion}
+               onDismiss={dismissSuggestionBar}
+            />
+         )}
+
+         {/* City Notification (First-time visitors - non-intrusive) */}
+         {showNotification && (
+            <CityNotification
+               onSelectCity={openCityDialogFromNotification}
+               onDismiss={dismissNotification}
+            />
+         )}
       </div>
    );
 }

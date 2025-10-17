@@ -1,4 +1,6 @@
-// Utility functions will be added here
-// Example: Date formatters, Currency formatters, etc.
+/**
+ * Utility Functions
+ * Date formatters, Currency formatters, Location utilities, etc.
+ */
 
-export default {};
+export * from './locationUtils';

@@ -10,3 +10,7 @@ export { FeaturesSection } from './FeaturesSection';
 export { DestinationsSection } from './DestinationsSection';
 export { PropertyTypesSection } from './PropertyTypesSection';
 export { CTASection } from './CTASection';
+export { CitySelectionDialog } from './CitySelectionDialog';
+export { LocationSuggestionBar } from './LocationSuggestionBar';
+export { CityNotification } from './CityNotification';
+export { ChangeCityButton } from './ChangeCityButton';

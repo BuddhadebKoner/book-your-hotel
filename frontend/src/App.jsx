@@ -9,23 +9,26 @@ import Home from './_root/pages/Home'
 import DevPage from './_root/pages/DevPage'
 import HotelDetails from './_root/pages/HotelDetails'
 import MapSearch from './_root/pages/MapSearch'
+import { LocationProvider } from './context'
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route element={<RootLayout />}>
-          <Route index element={<Home />} />
-          <Route path="/hotels" element={<Hotels />} />
-          <Route path="/hotels/:hotelId" element={<HotelDetails />} />
-          <Route path="/map-search" element={<MapSearch />} />
-          <Route path="/destinations" element={<Destinations />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/dev" element={<DevPage />} />
-        </Route>
-      </Routes>
-    </Router>
+    <LocationProvider>
+      <Router>
+        <Routes>
+          <Route element={<RootLayout />}>
+            <Route index element={<Home />} />
+            <Route path="/hotels" element={<Hotels />} />
+            <Route path="/hotels/:hotelId" element={<HotelDetails />} />
+            <Route path="/map-search" element={<MapSearch />} />
+            <Route path="/destinations" element={<Destinations />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/dev" element={<DevPage />} />
+          </Route>
+        </Routes>
+      </Router>
+    </LocationProvider>
   )
 }
 

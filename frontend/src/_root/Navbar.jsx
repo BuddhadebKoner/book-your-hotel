@@ -1,8 +1,11 @@
 import { Link } from 'react-router-dom';
 import { Hotel, Phone, Mail, MapPin, Facebook, Twitter, Instagram, Linkedin } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import { useLocation } from '../context';
+import { ChangeCityButton } from '../components/home';
 
 export default function Navbar() {
+   const { cityData, showCityDialog } = useLocation();
    return (
       <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
          <div className="container mx-auto px-4">
@@ -59,6 +62,14 @@ export default function Navbar() {
                         Contact
                      </Link>
                   </div>
+
+                  {/* Change City Button */}
+                  <ChangeCityButton
+                     currentCity={cityData?.city}
+                     onClick={showCityDialog}
+                     variant="outline"
+                     size="sm"
+                  />
                </div>
             </div>
          </div>

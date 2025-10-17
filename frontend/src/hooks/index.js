@@ -1,4 +1,6 @@
-// Custom hooks will be added here
-// Example: useHotels, useBookings, useAuth, etc.
+/**
+ * Custom Hooks
+ * Reusable hooks for common patterns
+ */
 
-export default {};
+export { useCitySearch } from './useCitySearch';
