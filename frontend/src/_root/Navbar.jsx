@@ -33,8 +33,12 @@ export default function Navbar() {
             {/* Main Navbar */}
             <div className="flex h-16 items-center justify-between">
                <Link to="/" className="flex items-center gap-2">
-                  <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-primary text-primary-foreground">
-                     <Hotel className="h-6 w-6" />
+                  <div className="flex items-center justify-center h-10 w-10 rounded-lg overflow-hidden bg-white">
+                     <img
+                        src="/logo.png"
+                        alt="BookYourHotel Logo"
+                        className="h-full w-full object-contain"
+                     />
                   </div>
                   <div className="flex flex-col">
                      <span className="font-bold text-xl bg-gradient-to-r from-primary to-orange-600 bg-clip-text text-transparent">

@@ -15,7 +15,7 @@ import { cn } from '@/lib/utils'
  * HotelRates Component
  * Displays available room rates for a hotel in a dialog
  */
-export default function HotelRates({ hotelId, hotelName }) {
+export default function HotelRates({ hotelId, hotelName, onRateSelect, selectedRate }) {
    // Default dates: today + 7 days for checkin, +9 days for checkout (2 nights)
    const defaultCheckin = format(addDays(new Date(), 7), 'yyyy-MM-dd')
    const defaultCheckout = format(addDays(new Date(), 9), 'yyyy-MM-dd')
@@ -82,6 +82,14 @@ export default function HotelRates({ hotelId, hotelName }) {
 
    // Calculate nights
    const nights = Math.ceil((new Date(searchParams.checkout) - new Date(searchParams.checkin)) / (1000 * 60 * 60 * 24))
+
+   // Handle rate selection
+   const handleRateSelect = (rate) => {
+      if (onRateSelect) {
+         onRateSelect(rate)
+      }
+      setOpen(false) // Close dialog after selection
+   }
 
    return (
       <Dialog open={open} onOpenChange={setOpen}>
@@ -242,7 +250,12 @@ export default function HotelRates({ hotelId, hotelName }) {
                               return (
                                  <div
                                     key={rate.rateId || index}
-                                    className="p-4 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-primary transition-colors bg-background"
+                                    className={cn(
+                                       "p-4 rounded-lg border transition-colors bg-background",
+                                       selectedRate?.rateId === rate.rateId
+                                          ? "border-primary bg-primary/5"
+                                          : "border-slate-200 dark:border-slate-800 hover:border-primary"
+                                    )}
                                  >
                                     <div className="space-y-3">
                                        {/* Room Header */}
@@ -316,8 +329,13 @@ export default function HotelRates({ hotelId, hotelName }) {
                                                 </p>
                                              )}
                                           </div>
-                                          <Button size="sm" className="flex-shrink-0">
-                                             Select
+                                          <Button
+                                             size="sm"
+                                             className="flex-shrink-0"
+                                             variant={selectedRate?.rateId === rate.rateId ? "default" : "outline"}
+                                             onClick={() => handleRateSelect(rate)}
+                                          >
+                                             {selectedRate?.rateId === rate.rateId ? "Selected" : "Select"}
                                           </Button>
                                        </div>
                                     </div>

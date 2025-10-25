@@ -25,6 +25,7 @@ import { Button } from '../../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card'
 import { Badge } from '../../components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../../components/ui/dialog'
 import { HotelHeader, HotelGallery, BookingInfo, GuestFeedback } from '../../components/hotel-details'
 import { useState } from 'react'
 
@@ -39,6 +40,19 @@ export default function HotelDetails() {
    const location = useLocation()
    const { data, isLoading, isError, error } = useHotelDetails(hotelId)
    const [showAllFacilities, setShowAllFacilities] = useState(false)
+   const [mobileBookingOpen, setMobileBookingOpen] = useState(false)
+
+   // Handle booking button click - scroll to booking or open mobile dialog
+   const handleBookingClick = () => {
+      if (window.innerWidth < 1024) { // Mobile/tablet
+         setMobileBookingOpen(true)
+      } else { // Desktop - scroll to booking info
+         const bookingSection = document.getElementById('booking-info-section')
+         if (bookingSection) {
+            bookingSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+         }
+      }
+   }
 
    // Get the previous location from state, or default to home
    const previousLocation = location.state?.from || '/'
@@ -408,7 +422,11 @@ export default function HotelDetails() {
                                        </div>
                                     )}
 
-                                    <Button className="w-full" size="lg">
+                                    <Button
+                                       className="w-full"
+                                       size="lg"
+                                       onClick={handleBookingClick}
+                                    >
                                        <Calendar className="mr-2 h-4 w-4" />
                                        Book This Room
                                     </Button>
@@ -429,9 +447,13 @@ export default function HotelDetails() {
                            <p className="text-sm text-muted-foreground mb-4">
                               Detailed room information is not currently available. Please contact the hotel for room options and availability.
                            </p>
-                           <Button className="w-full" size="lg">
-                              <Phone className="mr-2 h-4 w-4" />
-                              Contact Hotel
+                           <Button
+                              className="w-full"
+                              size="lg"
+                              onClick={handleBookingClick}
+                           >
+                              <Calendar className="mr-2 h-4 w-4" />
+                              View Rates & Book
                            </Button>
                         </CardContent>
                      </Card>
@@ -568,7 +590,7 @@ export default function HotelDetails() {
                </div>
 
                {/* Right Column - Booking Info */}
-               <div className="space-y-6">
+               <div className="space-y-6" id="booking-info-section">
                   {/* Quick Information */}
                   <BookingInfo hotel={hotel} />
                </div>
@@ -585,12 +607,31 @@ export default function HotelDetails() {
          {/* Sticky Bottom Booking Button for Mobile */}
          <div className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/90 border-t p-4 shadow-lg">
             <div className="container mx-auto">
-               <Button className="w-full" size="lg">
+               <Button
+                  className="w-full"
+                  size="lg"
+                  onClick={handleBookingClick}
+               >
                   <Calendar className="mr-2 h-4 w-4" />
-                  Book Now
+                  View Rates & Book Now
                </Button>
             </div>
          </div>
+
+         {/* Mobile Booking Dialog */}
+         <Dialog open={mobileBookingOpen} onOpenChange={setMobileBookingOpen}>
+            <DialogContent className="max-w-[95vw] sm:max-w-md max-h-[90vh] overflow-y-auto">
+               <DialogHeader>
+                  <DialogTitle>Select Rate & Book</DialogTitle>
+                  <DialogDescription>
+                     {hotel.name}
+                  </DialogDescription>
+               </DialogHeader>
+               <div className="mt-4">
+                  <BookingInfo hotel={hotel} />
+               </div>
+            </DialogContent>
+         </Dialog>
       </div>
    )
 }

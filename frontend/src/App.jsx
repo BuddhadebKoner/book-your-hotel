@@ -9,6 +9,8 @@ import Home from './_root/pages/Home'
 import DevPage from './_root/pages/DevPage'
 import HotelDetails from './_root/pages/HotelDetails'
 import MapSearch from './_root/pages/MapSearch'
+import BookingConfirmation from './_root/pages/BookingConfirmation'
+import BookingHistory from './_root/pages/BookingHistory'
 import { LocationProvider } from './context'
 
 function App() {
@@ -25,6 +27,8 @@ function App() {
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/dev" element={<DevPage />} />
+            <Route path="/booking-confirmation" element={<BookingConfirmation />} />
+            <Route path="/bookings" element={<BookingHistory />} />
           </Route>
         </Routes>
       </Router>

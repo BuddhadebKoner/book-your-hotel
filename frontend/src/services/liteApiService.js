@@ -297,6 +297,21 @@ export const RatesAPI = {
       };
 
       return await makeRequest('/rates/prebook', 'POST', body, true);
+   },
+
+   /**
+    * Create a prebook session (Step 1 of booking)
+    * POST /v3.0/rates/prebook
+    */
+   createPrebookSession: async (prebookData) => {
+      const { offerId, usePaymentSdk = true } = prebookData;
+
+      const body = {
+         offerId,
+         usePaymentSdk
+      };
+
+      return await makeRequest('/rates/prebook', 'POST', body, true);
    }
 };
 
@@ -308,10 +323,54 @@ export const RatesAPI = {
 
 export const BookingAPI = {
    /**
-    * Create a new booking
+    * Create a new booking (Step 3 - Final booking after payment)
+    * POST /v2.0/rates/book
     */
    createBooking: async (bookingData) => {
-      return await makeRequest('/rates/book', 'POST', bookingData, true);
+      const { prebookId, holder, payment, guests } = bookingData;
+
+      const body = {
+         prebookId,
+         holder: {
+            firstName: holder.firstName,
+            lastName: holder.lastName,
+            email: holder.email
+         },
+         payment: {
+            method: payment.method, // 'TRANSACTION_ID'
+            transactionId: payment.transactionId
+         },
+         guests: guests.map(guest => ({
+            occupancyNumber: guest.occupancyNumber,
+            firstName: guest.firstName,
+            lastName: guest.lastName,
+            email: guest.email,
+            remarks: guest.remarks || ''
+         }))
+      };
+
+      // Use v2.0 endpoint for booking
+      const bookUrl = `${API_CONFIG.baseUrl.replace('v3.0', 'v2.0')}/rates/book`;
+      const apiKey = API_CONFIG.privateKey;
+
+      const options = {
+         method: 'POST',
+         headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'X-API-Key': apiKey
+         },
+         body: JSON.stringify(body)
+      };
+
+      const response = await fetch(bookUrl, options);
+      const data = await response.json();
+
+      if (!response.ok) {
+         throw new Error(data.error || 'Booking failed');
+      }
+
+      return data;
    },
 
    /**
