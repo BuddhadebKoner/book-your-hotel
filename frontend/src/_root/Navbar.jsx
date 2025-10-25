@@ -35,7 +35,7 @@ export default function Navbar() {
                <Link to="/" className="flex items-center gap-2">
                   <div className="flex items-center justify-center h-10 w-10 rounded-lg overflow-hidden bg-white">
                      <img
-                        src="/logo.png"
+                        src="logo.png"
                         alt="BookYourHotel Logo"
                         className="h-full w-full object-contain"
                      />
